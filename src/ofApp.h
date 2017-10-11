@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxAvVideoPlayer.h"
 
 class ofApp : public ofBaseApp{
 
@@ -21,4 +22,13 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
+
+		ofVideoGrabber videoGrabber;
+		ofTexture videoTexture;
+
+		ofxAvVideoPlayer videoPlayer;
+
+		int camWidth;
+		int camHeight;
+
 };

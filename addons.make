@@ -1,3 +1,4 @@
+ofxAvCodec
 ofxGui
 ofxOpenCv
 ofxOsc
