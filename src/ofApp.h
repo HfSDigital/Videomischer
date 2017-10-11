@@ -2,10 +2,12 @@
 
 #include "ofMain.h"
 #include "ofxAvVideoPlayer.h"
+#include "outputWindow.h"
 
 class ofApp : public ofBaseApp{
 
 	public:
+
 		void setup();
 		void update();
 		void draw();
@@ -21,6 +23,8 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		shared_ptr<outputWindow> outputApp;
 		
 
 		ofVideoGrabber videoGrabber;
@@ -30,5 +34,10 @@ class ofApp : public ofBaseApp{
 
 		int camWidth;
 		int camHeight;
-
+		
+		vector<ofFbo> previews;	// Die Previews
+		int padding;			// Abstand zwischen den Preview Thumbnails
+		int maxPreviews;		// Anzahl Previews (muss natürlich noch dynamisiert werden)
+		int liveID;				// Der Index der Preview, die gerade auf den Beamer geschaltet ist
+		
 };
