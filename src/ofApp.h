@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "ofxAvVideoPlayer.h"
 #include "outputWindow.h"
+#include "videostream.h"
+#include "guiColors.h"
 
 class ofApp : public ofBaseApp{
 
@@ -24,20 +26,17 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		void onMouseClickedInPreview(int& e);
+		//void onMouseDrag(ofVec2f& e);
+
 		shared_ptr<outputWindow> outputApp;
 		
-
-		ofVideoGrabber videoGrabber;
-		ofTexture videoTexture;
-
-		ofxAvVideoPlayer videoPlayer;
-
-		int camWidth;
-		int camHeight;
-		
-		vector<ofFbo> previews;	// Die Previews
+		vector<videostream*> videoStreams;
+	private:
 		int padding;			// Abstand zwischen den Preview Thumbnails
-		int maxPreviews;		// Anzahl Previews (muss natürlich noch dynamisiert werden)
-		int liveID;				// Der Index der Preview, die gerade auf den Beamer geschaltet ist
-		
+		int draggedPreviewID = -1;
+		bool drawDragLine = false;
+
+
+
 };

@@ -3,67 +3,57 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-	// of-interne VideoGrabber
-	camWidth = 640;
-	camHeight = 480;
-	videoGrabber.setDeviceID(0);
-	videoGrabber.setDesiredFrameRate(60);
-	videoGrabber.initGrabber(camWidth, camHeight);
-
-	// ofxAvCodec VideoPlayer (https://github.com/kritzikratzi/ofxAvCodec)
-	videoPlayer.load("C:/Users/greenOne/Desktop/big_buck_bunny.mp4");
 
 	ofSetVerticalSync(true);
 
-	// Setup für Previews
+	// Setup for Previews
 	padding = 20;
-	maxPreviews = 2;
-	for (int i = 0; i < maxPreviews; i++) {
-		previews.push_back(ofFbo());
-		previews[i].allocate(160, 100, GL_RGBA, ofFbo::maxSamples());
+	
+	// Load default VideoStreams
+	videoStreams.push_back(new videostream(0));													// open Webcam with DeviceID '0'
+	videoStreams.push_back(new videostream("C:/Users/greenOne/Desktop/big_buck_bunny.mp4"));	// open Videofile 
+	
+
+
+	for (int i = 0; i < videoStreams.size(); i++) {
+		ofAddListener(videoStreams[i]->clickedInside, this, &ofApp::onMouseClickedInPreview);
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	ofBackground(100, 100, 100);
-	videoGrabber.update();
+	ofBackground(guiColors::background);
+
+	// Update all VideoStreams
+	for (int i = 0; i < videoStreams.size(); i++) {
+		videoStreams[i]->update();
+	}
+
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
-
-	// Preview Thumbnails befüllen
-	previews[0].begin();
-		videoPlayer.update();  // it's weird, but ... do this in draw(), not in update! 
-		videoPlayer.draw(0, 0, previews[0].getWidth(), previews[0].getHeight());
-	previews[0].end();
-	
-	previews[1].begin();
-		videoGrabber.draw(0, 0, previews[1].getWidth(), previews[1].getHeight());
-	previews[1].end();
-
-
-	// Alle Previews anzeigen
-	for (int i = 0; i < previews.size(); i++) {
-		previews[i].draw(padding + i * (previews[i].getWidth() + padding), padding);
+	// Draw the drag-drop line
+	if (drawDragLine) {
+		ofPushStyle();
+		ofSetColor(guiColors::border);
+		ofSetLineWidth(1.0f);
+		ofDrawLine(videoStreams[draggedPreviewID]->getPosition().x + videoStreams[draggedPreviewID]->getPreviewWidth()/2, videoStreams[draggedPreviewID]->getPosition().y + videoStreams[draggedPreviewID]->getPreviewHeight(), mouseX, mouseY);
+		ofPopStyle();
 	}
+
+	// Show Preview of all VideoStreams
+	for (int i = 0; i < videoStreams.size(); i++) {
+		videoStreams[i]->drawPreview(padding + i * (videoStreams[i]->getPreviewWidth() + padding), padding);
+	}
+
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	if (key == '1')
-	{ 
-		outputApp->outTexture = videoPlayer.getTexture();
-		cout << "Video 1" << endl; 
-	} 
 
-	else if (key == '2')
-	{
-		outputApp->outTexture = videoGrabber.getTexture();
-		cout << "Video 2" << endl;
-	}
+	if (key == '1')	  	 outputApp->outTexture = videoStreams[0]->getTexture();
+	else if (key == '2') outputApp->outTexture = videoStreams[1]->getTexture();
 
 }
 
@@ -79,7 +69,7 @@ void ofApp::mouseMoved(int x, int y ){
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-
+	cout << "ofApp dragging ID " << draggedPreviewID << " to: " << x << ", " << y << endl;
 }
 
 //--------------------------------------------------------------
@@ -89,7 +79,7 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-
+	drawDragLine = false;
 }
 
 //--------------------------------------------------------------
@@ -115,4 +105,10 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+void ofApp::onMouseClickedInPreview(int& e) {
+	cout << "clicked inside Preview ID: " << e << endl;
+	draggedPreviewID = e; 
+	drawDragLine = true;
 }

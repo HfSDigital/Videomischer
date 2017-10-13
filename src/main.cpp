@@ -26,8 +26,8 @@ int main( ){
 	shared_ptr<ofAppBaseWindow> outWindow = ofCreateWindow(settings);
 
 
-	settings.width = 600;
-	settings.height = 200;
+	settings.width = 380;
+	settings.height = 600;
 	settings.title = "Videomischer";
 	settings.shareContextWith = outWindow;		// .. um auf die Texturen eines anderen Fensters zuzugreifen
 	shared_ptr<ofAppBaseWindow> mainWindow = ofCreateWindow(settings);

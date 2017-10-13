@@ -109,6 +109,9 @@
     <ClCompile Include="src\outputWindow.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\videostream.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -1203,6 +1206,12 @@
       <Filter>addons\ofxOsc\libs\oscpack\src\osc</Filter>
     </ClInclude>
     <ClInclude Include="src\outputWindow.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\videostream.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\guiColors.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
