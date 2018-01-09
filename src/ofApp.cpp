@@ -11,10 +11,10 @@ void ofApp::setup(){
 	
 	// Load default VideoStreams
 	videoStreams.push_back(new videostream(0));													// open Webcam with DeviceID '0'
-	videoStreams.push_back(new videostream("C:/Users/greenOne/Desktop/big_buck_bunny.mp4"));	// open Videofile 
-	
+	videoStreams.push_back(new videostream("C:/Users/Puppe/Desktop/big_buck_bunny.mp4"));	// open Videofile 
 
 
+	// add click-listener to preview-boxes
 	for (int i = 0; i < videoStreams.size(); i++) {
 		ofAddListener(videoStreams[i]->clickedInside, this, &ofApp::onMouseClickedInPreview);
 	}
@@ -33,18 +33,10 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	// Draw the drag-drop line
-	if (drawDragLine) {
-		ofPushStyle();
-		ofSetColor(guiColors::border);
-		ofSetLineWidth(1.0f);
-		ofDrawLine(videoStreams[draggedPreviewID]->getPosition().x + videoStreams[draggedPreviewID]->getPreviewWidth()/2, videoStreams[draggedPreviewID]->getPosition().y + videoStreams[draggedPreviewID]->getPreviewHeight(), mouseX, mouseY);
-		ofPopStyle();
-	}
-
 	// Show Preview of all VideoStreams
 	for (int i = 0; i < videoStreams.size(); i++) {
 		videoStreams[i]->drawPreview(padding + i * (videoStreams[i]->getPreviewWidth() + padding), padding);
+		videoStreams[i]->drawPreview(padding + i * (videoStreams[i]->getPreviewWidth() + padding), padding + 120);
 	}
 
 }
@@ -52,8 +44,8 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-	if (key == '1')	  	 outputApp->outTexture = videoStreams[0]->getTexture();
-	else if (key == '2') outputApp->outTexture = videoStreams[1]->getTexture();
+	if (key == '1')	  	 outputWindow01->outTexture = videoStreams[0]->getTexture();
+	else if (key == '2') outputWindow01->outTexture = videoStreams[1]->getTexture();
 
 }
 
@@ -69,7 +61,6 @@ void ofApp::mouseMoved(int x, int y ){
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-	cout << "ofApp dragging ID " << draggedPreviewID << " to: " << x << ", " << y << endl;
 }
 
 //--------------------------------------------------------------
@@ -79,7 +70,6 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-	drawDragLine = false;
 }
 
 //--------------------------------------------------------------
@@ -109,6 +99,5 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void ofApp::onMouseClickedInPreview(int& e) {
 	cout << "clicked inside Preview ID: " << e << endl;
-	draggedPreviewID = e; 
-	drawDragLine = true;
+	outputWindow03->outTexture = videoStreams[e]->getTexture();
 }
