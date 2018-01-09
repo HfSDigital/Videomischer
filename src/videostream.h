@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxAvVideoPlayer.h"
 #include "guiColors.h"
+#include "preview.h"
 
 
 class videostream : public ofBaseApp
@@ -12,46 +13,37 @@ public:
 	videostream(string filename);
 	~videostream();
 	void update();
-	void drawPreview(int x, int y);
+	void drawPreview();
+	void addPreview(ofVec2f pos, int outDisplay);
 	ofTexture getTexture();
 
 	int getWidth();
 	int getHeight();
 	int getPreviewWidth();
 	int getPreviewHeight();
-	ofVec2f getPosition();
-	string getTitle();
+	//ofVec2f getPosition();
+	//string getTitle();
 
-	ofEvent<int> clickedInside;			// this gives us the PreviewID 
+	vector<preview*> previews;
 
 
-	void mouseMoved(ofMouseEventArgs & args);
-	void mouseDragged(ofMouseEventArgs & args);
-	void mousePressed(ofMouseEventArgs & args);
-	void mouseReleased(ofMouseEventArgs & args);
-	void mouseScrolled(ofMouseEventArgs & args);
-	void mouseEntered(ofMouseEventArgs & args);
-	void mouseExited(ofMouseEventArgs & args);
-	bool inside(float _x, float _y);
 
 	
 
 private:
 	void initPreview();
+
 	static int previewIDCounter;
 	int previewID;
-	int x, y;
+	//string title;
 	int width;
 	int height;
 	int previewWidth;
 	int previewHeight;
-	string title;
-	
-	bool isMouseOver = false;
-
 
 	ofVideoGrabber videoGrabber;
 	ofxAvVideoPlayer videoPlayer;
+	
 
 	ofFbo previewFbo;
 

@@ -112,6 +112,9 @@
     <ClCompile Include="src\videostream.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\preview.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -1212,6 +1215,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\guiColors.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\preview.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

@@ -210,6 +210,7 @@
     <ClCompile Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscReceivedElements.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscTypes.cpp" />
     <ClCompile Include="src\outputWindow.cpp" />
+    <ClCompile Include="src\preview.cpp" />
     <ClCompile Include="src\videostream.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -524,6 +525,7 @@
     <ClInclude Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscReceivedElements.h" />
     <ClInclude Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscTypes.h" />
     <ClInclude Include="src\outputWindow.h" />
+    <ClInclude Include="src\preview.h" />
     <ClInclude Include="src\videostream.h" />
   </ItemGroup>
   <ItemGroup>

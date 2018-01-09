@@ -26,13 +26,13 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		void onMouseClickedInPreview(int& e);
+		void onMouseClickedInPreview(ofVec2f& e);
 
-		shared_ptr<outputWindow> outputWindow01;
-		shared_ptr<outputWindow> outputWindow02;
-		shared_ptr<outputWindow> outputWindow03;
+		vector<shared_ptr<outputWindow>> outputWindows;
 
 		vector<videostream*> videoStreams;
+
+
 	private:
 		int padding;			// Abstand zwischen den Preview Thumbnails
 };

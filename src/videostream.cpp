@@ -15,7 +15,6 @@ videostream::videostream(int devideID)
 	videoGrabber.setDesiredFrameRate(60);
 	videoGrabber.initGrabber(width, height);
 
-	title =  "live cam";
 }
 
 
@@ -30,7 +29,7 @@ videostream::videostream(string filename)
 	width = videoPlayer.getWidth();
 	height = videoPlayer.getHeight();
 
-	title = filename;
+//	title = filename;
 }
 
 videostream::~videostream() {}
@@ -38,15 +37,17 @@ videostream::~videostream() {}
 void videostream::initPreview() {
 	previewID = previewIDCounter++;
 
-	cout << "preview id: " << previewID << endl;
-	
-	ofRegisterMouseEvents(this);
-
 	previewWidth = 160;
 	previewHeight = 100;
-
 	previewFbo.allocate(previewWidth, previewHeight, GL_RGBA, ofFbo::maxSamples());
 }
+
+void videostream::addPreview(ofVec2f pos, int outDisplay) {
+	previews.push_back(new preview(previewID, pos, ofVec2f(previewWidth, previewHeight), outDisplay));
+}
+
+
+
 
 
 void videostream::update() {
@@ -54,7 +55,7 @@ void videostream::update() {
 	switch ( streamtype )
 	{
 	case videoFile:
-		videoPlayer.update();  // it's weird, but ... do this in draw(), not in update! 
+		videoPlayer.update();  // (it's weird, but ... do this in draw(), not in update!)
 		videoPlayer.draw(0, 0, previewWidth, previewHeight);
 		break;
 
@@ -69,16 +70,17 @@ void videostream::update() {
 	previewFbo.end();
 }
 
-void videostream::drawPreview(int x = 0, int y = 0) {
-	this->x = x;
-	this->y = y;
-	previewFbo.draw(x, y, previewWidth, previewHeight);
-	if(isMouseOver){
-		ofPushStyle();
-		ofNoFill();
-		ofSetColor(guiColors::border);
-		ofDrawRectangle(x, y, previewWidth, previewHeight);
-		ofPopStyle();
+
+void videostream::drawPreview() {
+	for (int i = 0; i < previews.size(); i++) {
+		previewFbo.draw(previews[i]->pos.x, previews[i]->pos.y, previewWidth, previewHeight);
+		if (previews[i]->isMouseOver) {
+			ofPushStyle();
+			ofNoFill();
+			ofSetColor(guiColors::border);
+			ofDrawRectangle(previews[i]->pos.x, previews[i]->pos.y, previewWidth, previewHeight);
+			ofPopStyle();
+		}
 	}
 }
 
@@ -113,33 +115,13 @@ int videostream::getPreviewWidth() {
 int videostream::getPreviewHeight() {
 	return previewHeight;
 }
-ofVec2f videostream::getPosition() {
-	return ofVec2f(x, y);
-}
-string videostream::getTitle() {
-	return title;
-}
+//ofVec2f videostream::getPosition() {
+//	return ofVec2f(x, y);
+//}
+//string videostream::getTitle() {
+//	return title;
+//}
 
-void videostream::mouseMoved(ofMouseEventArgs & args) {
-	isMouseOver = inside(args.x, args.y);		// only needed to draw a border around the preview when mouse is hovering
-}
-
-void videostream::mouseDragged(ofMouseEventArgs & args) {}
-void videostream::mousePressed(ofMouseEventArgs & args) {
-	if (inside(args.x, args.y)) {
-		ofNotifyEvent(clickedInside, previewID, this);
-	}
-}
-void videostream::mouseReleased(ofMouseEventArgs & args) {}
-void videostream::mouseScrolled(ofMouseEventArgs & args) {}
-void videostream::mouseEntered(ofMouseEventArgs & args) {}
-void videostream::mouseExited(ofMouseEventArgs & args) {}
-
-
-//this function checks if the passed arguments are inside the preview rectangle.
-bool videostream::inside(float _x, float _y) {
-	return ((_x > x) && (_x < x + previewWidth) && (_y > y) && (_y < y + previewHeight));
-}
 
 
 
