@@ -5,35 +5,37 @@ int videostream::previewIDCounter = 0;
 
 videostream::videostream()
 {
-	initPreview();
-	width = 1280;
-	height = 720;
+	previewIsInitialized = false;
 	streamtype = empty;
 	ofFile img("Solid_black.png");
 	blackimage.loadImage(img);
 
 }
 	
-videostream::videostream(int devideID)
+videostream::videostream(int deviceID)
 {
-	initPreview();
+	previewIsInitialized = false;
 	streamtype = webcam;
 
 	width = 1280;
 	height = 720;
 
-	videoGrabber.setDeviceID(devideID);
+	videoGrabber.setDeviceID(deviceID);
 	videoGrabber.setDesiredFrameRate(60);
-	videoGrabber.initGrabber(width, height);
+	if (!videoGrabber.initGrabber(width, height)) {
+		throw deviceID;
+	}
 }
 
 videostream::videostream(string filename)
 {
-	initPreview();
+	previewIsInitialized = false;
 	streamtype = videoFile;
-	soundStream.setup(this, 2, 0, 44100, 512, 4);
-
-	videoPlayer.setupAudioOut(2, 44100);
+	
+	if (soundStream.setup(this, 2, 0, 44100, 512, 4)) {
+		videoPlayer.setupAudioOut(2, 44100);
+	}
+	
 	videoPlayer.setLoop(false);
 	videoPlayer.load(filename);
 	videoPlayer.stop();
@@ -62,13 +64,18 @@ void videostream::play() {
 void videostream::initPreview() {
 	previewID = previewIDCounter++;
 
-	previewWidth = 160;
-	previewHeight = 100;
 	previewFbo.allocate(previewWidth, previewHeight, GL_RGBA, ofFbo::maxSamples());
+	previewIsInitialized = true;
 }
 
-void videostream::addPreview(ofVec2f pos, int outDisplay) {
+void videostream::addPreview(ofVec2f pos, int outDisplay, ofVec2f size) {
+	previewWidth = size.x;
+	previewHeight = size.y;
+
+	if(!previewIsInitialized) initPreview();
+
 	previews.push_back(new preview(previewID, pos, ofVec2f(previewWidth, previewHeight), outDisplay));
+
 }
 
 
@@ -90,6 +97,7 @@ void videostream::update() {
 	case empty:
 		blackimage.draw(0, 0, previewWidth, previewHeight);
 		break;
+
 	default:
 		break;
 	}
@@ -120,10 +128,9 @@ ofTexture videostream::getTexture() {
 	case webcam:
 		return videoGrabber.getTexture();
 		break;
-	case empty:
-		return blackimage.getTexture();
-		break;
+
 	default:
+		return blackimage.getTexture();
 		break;
 	}
 }

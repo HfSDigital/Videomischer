@@ -15,7 +15,7 @@ public:
 	~videostream();
 	void update();
 	void drawPreview();
-	void addPreview(ofVec2f pos, int outDisplay);
+	void addPreview(ofVec2f pos, int outDisplay, ofVec2f size = ofVec2f(160,100));
 	ofTexture getTexture();
 
 	int getWidth();
@@ -27,7 +27,6 @@ public:
 
 	vector<preview*> previews;
 	void play();
-	
 
 private:
 	void initPreview();
@@ -47,7 +46,7 @@ private:
 	ofImage blackimage;
 
 	ofFbo previewFbo;
-
+	bool previewIsInitialized;
 	enum {
 		videoFile,
 		webcam,

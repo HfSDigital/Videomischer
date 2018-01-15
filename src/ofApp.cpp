@@ -6,34 +6,48 @@
 void ofApp::setup(){
 
 	// read data folder and get all files
-	ofDirectory dir("video");
-	vector<ofFile> videofiles;
-	videofiles = dir.getFiles();
-	for (int i = 0; i < videofiles.size(); i++) {
-		cout << videofiles[i].getAbsolutePath() << endl;
-	}
 	
 	ofSetVerticalSync(true);
-
-	// Setup for Previews
-	padding = 20;
-
 
 	// one empty stream as 'simple black'
 	videoStreams.push_back(new videostream());
 
-	// Load default VideoStreams and Videofiles from data-Folder
-	videoStreams.push_back(new videostream(0));													// open Webcam with DeviceID '0'
+	// Load default VideoStreams 
+	int camcount = tmpVideoGrabber.listDevices().size();
+	for (int i = 0; i < camcount; i++) {
+		try {
+			videoStreams.push_back(new videostream(i));						// open Webcam with DeviceID '0'
+		}
+		catch (int e) {
+			cout << "UNABLE TO OPEN CAPTURE DEVICE: " << e << endl;
+		}
+	}
+
+	// Load Videofiles from data - Folder
+	ofDirectory dir("video");
+	vector<ofFile> videofiles = dir.getFiles();
 	for (int i = 0; i < videofiles.size(); i++) {
+		cout << videofiles[i].getAbsolutePath() << endl;
 		videoStreams.push_back(new videostream(videofiles[i].getAbsolutePath()));	// open Videofile 
 	}
 
+	// Setup for Previews
+	padding = 20;
+	float pwidth;
+	if (videoStreams.size() > 4) {
+		pwidth = (ofGetWindowWidth() - padding * (videoStreams.size() + 1)) / videoStreams.size();
+	}
+	else {
+		pwidth = (ofGetWindowWidth() - padding * (5 + 1)) / 5;
+	}
+	cout << "pwidth :" << pwidth << endl;
+	previewSize = ofVec2f(pwidth, pwidth/16.0f*9.0f);
 
 	// add previews with click-listener for each videostream x each outputWindow
 	for (int i = 0; i < videoStreams.size(); i++) {
 		for (int j = 0; j < outputWindows.size(); j++) {
-			videoStreams[i]->addPreview(ofVec2f(padding*2 + i * (videoStreams[i]->getPreviewWidth()  + padding), 
-												padding*3 + j * (videoStreams[i]->getPreviewHeight() + padding*5)), j);
+			videoStreams[i]->addPreview(ofVec2f(padding + i * (previewSize.x + padding),
+												padding*3 + j * (previewSize.y + padding*5)), j, previewSize);
 			ofAddListener(videoStreams[i]->previews[j]->clickedInside, this, &ofApp::onMouseClickedInPreview);
 		}
 	}
@@ -53,19 +67,18 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	ofPushStyle();
-	ofBackground(55);
+	ofBackground(33);
 	ofFill();
-	ofSetColor(77);
-	ofRect(padding, padding, ofGetWindowWidth() - padding * 2, 100 + padding * 4);
-
-	ofRect(padding, padding + 100 + padding * 5, ofGetWindowWidth() - padding * 2, 100 + padding * 4);
-
-	ofRect(padding, padding + 200 + padding * 10, ofGetWindowWidth() - padding * 2, 100 + padding * 4);
+	ofSetColor(99);
+	for (int i = 0; i < outputWindows.size(); i++) {
+		ofRect(0, padding + i * previewSize.y + padding * i * 5,	ofGetWindowWidth(), previewSize.y + padding * 4);
+	}
 	ofNoFill();
 	ofSetColor(255);
-	ofDrawBitmapString("Display 1", padding * 2, padding * 2);
-	ofDrawBitmapString("Display 2", padding * 2, padding + 100 + padding * 6);
-	ofDrawBitmapString("Display 3", padding * 2, padding + 200 + padding * 11);
+	for (int i = 0; i < outputWindows.size(); i++) {
+		string s = "Display " + to_string(i);
+		ofDrawBitmapString(s, padding, padding + i * previewSize.y + padding * i * 5 + padding);
+	}
 	ofPopStyle();
 
 	// Show Preview of all VideoStreams
@@ -132,6 +145,6 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void ofApp::onMouseClickedInPreview(ofVec2f& e) {
 	cout << "clicked inside Preview ID: " << e.x << "for output Display " << e.y << endl;
-	outputWindows[(int)e.y]->outTexture = videoStreams[(int)e.x]->getTexture();
 	videoStreams[(int)e.x]->play();
+	outputWindows[(int)e.y]->outTexture = videoStreams[(int)e.x]->getTexture();
 }
