@@ -9,6 +9,7 @@
 class videostream : public ofBaseApp
 {
 public:
+	videostream();
 	videostream(int devideID);
 	videostream(string filename);
 	~videostream();
@@ -25,9 +26,7 @@ public:
 	//string getTitle();
 
 	vector<preview*> previews;
-
-
-
+	void play();
 	
 
 private:
@@ -43,12 +42,15 @@ private:
 
 	ofVideoGrabber videoGrabber;
 	ofxAvVideoPlayer videoPlayer;
-	
+	ofSoundStream soundStream;
+	void audioOut(float * output, int bufferSize, int nChannels);
+	ofImage blackimage;
 
 	ofFbo previewFbo;
 
 	enum {
 		videoFile,
-		webcam
+		webcam,
+		empty
 	} streamtype;
 };

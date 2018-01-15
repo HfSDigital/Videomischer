@@ -3,6 +3,17 @@
 
 int videostream::previewIDCounter = 0;
 
+videostream::videostream()
+{
+	initPreview();
+	width = 1280;
+	height = 720;
+	streamtype = empty;
+	ofFile img("Solid_black.png");
+	blackimage.loadImage(img);
+
+}
+	
 videostream::videostream(int devideID)
 {
 	initPreview();
@@ -14,17 +25,18 @@ videostream::videostream(int devideID)
 	videoGrabber.setDeviceID(devideID);
 	videoGrabber.setDesiredFrameRate(60);
 	videoGrabber.initGrabber(width, height);
-
 }
-
-
 
 videostream::videostream(string filename)
 {
 	initPreview();
 	streamtype = videoFile;
+	soundStream.setup(this, 2, 0, 44100, 512, 4);
 
+	videoPlayer.setupAudioOut(2, 44100);
+	videoPlayer.setLoop(false);
 	videoPlayer.load(filename);
+	videoPlayer.stop();
 
 	width = videoPlayer.getWidth();
 	height = videoPlayer.getHeight();
@@ -32,7 +44,20 @@ videostream::videostream(string filename)
 //	title = filename;
 }
 
+void videostream::audioOut(float * output, int bufferSize, int nChannels) {
+	videoPlayer.audioOut(output, bufferSize, nChannels);
+}
+
 videostream::~videostream() {}
+
+void videostream::play() {
+	if (streamtype == videoFile) {
+		if (!videoPlayer.getIsPlaying()) {
+			videoPlayer.setPosition(0);
+			videoPlayer.play();
+		}
+	}
+}
 
 void videostream::initPreview() {
 	previewID = previewIDCounter++;
@@ -45,8 +70,6 @@ void videostream::initPreview() {
 void videostream::addPreview(ofVec2f pos, int outDisplay) {
 	previews.push_back(new preview(previewID, pos, ofVec2f(previewWidth, previewHeight), outDisplay));
 }
-
-
 
 
 
@@ -64,6 +87,9 @@ void videostream::update() {
 		videoGrabber.draw(0, 0, previewWidth, previewHeight);
 		break;
 
+	case empty:
+		blackimage.draw(0, 0, previewWidth, previewHeight);
+		break;
 	default:
 		break;
 	}
@@ -94,7 +120,9 @@ ofTexture videostream::getTexture() {
 	case webcam:
 		return videoGrabber.getTexture();
 		break;
-
+	case empty:
+		return blackimage.getTexture();
+		break;
 	default:
 		break;
 	}

@@ -9,8 +9,8 @@ int main( ){
 	ofGLFWWindowSettings settings;	//ofGLFWindowSettings settings;
 
 	// Main (Mixer-UI) Window
-	settings.width = 380;
-	settings.height = 600;
+	settings.width = 1280;
+	settings.height = 720;
 	settings.title = "Videomischer";
 	shared_ptr<ofAppBaseWindow> mainWindow = ofCreateWindow(settings);
 
