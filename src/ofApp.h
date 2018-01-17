@@ -37,4 +37,6 @@ class ofApp : public ofBaseApp{
 		int padding;			// Abstand zwischen den Preview Thumbnails
 		ofVec2f previewSize;
 		ofVideoGrabber tmpVideoGrabber;
+		void exit();
+
 };

@@ -25,14 +25,10 @@ int main( ){
 	outBaseWindows.push_back(ofCreateWindow(settings));
 
 	// Output Window 02
-	settings.width = 640;
-	settings.height = 360;
 	settings.title = "Display 1";
 	outBaseWindows.push_back(ofCreateWindow(settings));
 
 	// Output Window 03
-	settings.width = 640;
-	settings.height = 360;
 	settings.title = "Display 2";
 	outBaseWindows.push_back(ofCreateWindow(settings));
 

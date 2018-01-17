@@ -13,15 +13,17 @@ void ofApp::setup(){
 	videoStreams.push_back(new videostream());
 
 	// Load default VideoStreams 
-	int camcount = tmpVideoGrabber.listDevices().size();
-	for (int i = 0; i < camcount; i++) {
-		try {
-			videoStreams.push_back(new videostream(i));						// open Webcam with DeviceID '0'
-		}
-		catch (int e) {
-			cout << "UNABLE TO OPEN CAPTURE DEVICE: " << e << endl;
-		}
-	}
+	//int camcount = tmpVideoGrabber.listDevices().size();
+
+	//int devices[] = { 0, 1 };
+	//for (int i = 0; i < size(devices); i++) {
+	//	try {
+	//		videoStreams.push_back(new videostream(devices[i]));						// open Webcam with DeviceID '0'
+	//	}
+	//	catch (int e) {
+	//		cout << "[VM ERROR] UNABLE TO OPEN CAPTURE DEVICE: " << e << endl;
+	//	}
+	//}
 
 	// Load Videofiles from data - Folder
 	ofDirectory dir("video");
@@ -148,3 +150,11 @@ void ofApp::onMouseClickedInPreview(ofVec2f& e) {
 	videoStreams[(int)e.x]->play();
 	outputWindows[(int)e.y]->outTexture = videoStreams[(int)e.x]->getTexture();
 }
+
+void ofApp::exit() {
+	for (int i = 0; i < videoStreams.size(); i++) {
+		videoStreams[i]->close();
+	}
+
+}
+

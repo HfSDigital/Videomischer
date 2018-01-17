@@ -27,13 +27,14 @@ public:
 
 	vector<preview*> previews;
 	void play();
+	void close();
 
 private:
 	void initPreview();
 
 	static int previewIDCounter;
 	int previewID;
-	//string title;
+	string title;
 	int width;
 	int height;
 	int previewWidth;
@@ -43,6 +44,7 @@ private:
 	ofxAvVideoPlayer videoPlayer;
 	ofSoundStream soundStream;
 	void audioOut(float * output, int bufferSize, int nChannels);
+
 	ofImage blackimage;
 
 	ofFbo previewFbo;

@@ -1,5 +1,5 @@
 #include "videostream.h"
-
+#include "RtAudio.h"
 
 int videostream::previewIDCounter = 0;
 
@@ -9,7 +9,7 @@ videostream::videostream()
 	streamtype = empty;
 	ofFile img("Solid_black.png");
 	blackimage.loadImage(img);
-
+	title = "black";
 }
 	
 videostream::videostream(int deviceID)
@@ -19,9 +19,14 @@ videostream::videostream(int deviceID)
 
 	width = 1280;
 	height = 720;
+	
 
 	videoGrabber.setDeviceID(deviceID);
-	videoGrabber.setDesiredFrameRate(60);
+	
+	videoGrabber.setDesiredFrameRate(25);
+
+	title = "device-id: " + to_string(deviceID);
+	
 	if (!videoGrabber.initGrabber(width, height)) {
 		throw deviceID;
 	}
@@ -31,24 +36,39 @@ videostream::videostream(string filename)
 {
 	previewIsInitialized = false;
 	streamtype = videoFile;
-	
-	if (soundStream.setup(this, 2, 0, 44100, 512, 4)) {
-		videoPlayer.setupAudioOut(2, 44100);
+
+	cout << "ofSoundStream Device List: " << endl;
+	for (int i = 0; i < soundStream.getDeviceList().size(); i++) {
+		cout << "device #" + to_string(i) + ": " + soundStream.getDeviceList()[i].name << endl;
 	}
-	
+
+	int sampleRates[] = {44100, 48000};
+
+	for (int i = 0; i < size(sampleRates); i++) {
+		if (soundStream.setup(this, 2, 0, sampleRates[i], 512, 4)) {
+			cout << "[VM] audio setup okay, samplerate " << sampleRates[i] << endl;
+			videoPlayer.setupAudioOut(2, sampleRates[i]);
+			break;
+		}
+		else {
+			cout << "[VM ERROR] audio setup with samplerate " << sampleRates[i] << " failed" << endl;
+		}
+	}
+
+
 	videoPlayer.setLoop(false);
 	videoPlayer.load(filename);
 	videoPlayer.stop();
 
 	width = videoPlayer.getWidth();
 	height = videoPlayer.getHeight();
-
-//	title = filename;
+	
+	title = filename.substr(filename.find_last_of("\\"));
 }
-
 void videostream::audioOut(float * output, int bufferSize, int nChannels) {
 	videoPlayer.audioOut(output, bufferSize, nChannels);
 }
+
 
 videostream::~videostream() {}
 
@@ -59,6 +79,10 @@ void videostream::play() {
 			videoPlayer.play();
 		}
 	}
+}
+
+void videostream::close() {
+	videoGrabber.close();
 }
 
 void videostream::initPreview() {
@@ -111,6 +135,8 @@ void videostream::drawPreview() {
 		if (previews[i]->isMouseOver) {
 			ofPushStyle();
 			ofNoFill();
+			ofSetColor(ofColor::white);
+			ofDrawBitmapString(title, previews[i]->pos.x, previews[i]->pos.y);
 			ofSetColor(guiColors::border);
 			ofDrawRectangle(previews[i]->pos.x, previews[i]->pos.y, previewWidth, previewHeight);
 			ofPopStyle();
