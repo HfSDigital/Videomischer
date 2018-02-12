@@ -1,42 +1,33 @@
 #pragma once
 
 #include "ofMain.h"
+
+#include "IPVideoGrabber.h"
 #include "ofxAvVideoPlayer.h"
-#include "outputWindow.h"
-#include "videostream.h"
-#include "guiColors.h"
+
+#include "globals.h"
+
+#include "vmVideoSource.h"
+#include "outputWindowApp.h"
+#include "preview.h"
 
 class ofApp : public ofBaseApp{
 
-	public:
+public:
+	void setup();
+	void draw();
+	void update();
 
-		void setup();
-		void update();
-		void draw();
+	void arrangePreviews();
+	//void onMouseClickedInPreview(int e);
 
-		void keyPressed(int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void mouseEntered(int x, int y);
-		void mouseExited(int x, int y);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
+	//--------------------------------------------------------------
 
-		void onMouseClickedInPreview(ofVec2f& e);
+	shared_ptr<ofAppBaseWindow> mainWindow;				// The Window of the main app
 
-		vector<shared_ptr<outputWindow>> outputWindows;
+	vector<shared_ptr<vmVideoSource>> videoSources;		// All the video sources
+	vector<shared_ptr<outputWindowApp>> outputWindowApps;//All the output windows
 
-		vector<videostream*> videoStreams;
-
-
-	private:
-		int padding;			// Abstand zwischen den Preview Thumbnails
-		ofVec2f previewSize;
-		ofVideoGrabber tmpVideoGrabber;
-		void exit();
+	vector<shared_ptr<preview>> previews;
 
 };

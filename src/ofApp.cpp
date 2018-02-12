@@ -1,160 +1,143 @@
-#include <Windows.h>
-#include <iostream>
 #include "ofApp.h"
 
+#include "vmCamera.h"
+#include "vmPlayer.h"
+#include "vmPicture.h"
+
+
 //--------------------------------------------------------------
+
 void ofApp::setup(){
-
-	// read data folder and get all files
 	
-	ofSetVerticalSync(true);
+	// Get all Pictures and add them to videoSources
 
-	// one empty stream as 'simple black'
-	videoStreams.push_back(new videostream());
+	ofDirectory dir("pictures");
+	vector<ofFile> picturefiles = dir.getFiles();
+	for (int i = 0; i < picturefiles.size(); i++)
+	{
+		cout << picturefiles[i].getAbsolutePath() << endl;
+		videoSources.push_back(make_shared<vmPicture>(picturefiles[i].getAbsolutePath()));
+	}
 
-	// Load default VideoStreams 
-	//int camcount = tmpVideoGrabber.listDevices().size();
 
-	//int devices[] = { 0, 1 };
-	//for (int i = 0; i < size(devices); i++) {
-	//	try {
-	//		videoStreams.push_back(new videostream(devices[i]));						// open Webcam with DeviceID '0'
-	//	}
-	//	catch (int e) {
-	//		cout << "[VM ERROR] UNABLE TO OPEN CAPTURE DEVICE: " << e << endl;
-	//	}
-	//}
 
-	// Load Videofiles from data - Folder
-	ofDirectory dir("video");
+	// Get all Camera-Devices and add them to videoSources
+
+	shared_ptr<ofVideoGrabber> vg = make_shared<ofVideoGrabber>();
+	
+	int vgCount = vg->listDevices().size();
+
+	for (int i = 0; i < vgCount; i++)
+	{
+		videoSources.push_back(make_shared<vmCamera>(i));
+	}
+
+
+
+	// Get all Videos and add them to videoSources
+
+	dir.open("videos");
 	vector<ofFile> videofiles = dir.getFiles();
-	for (int i = 0; i < videofiles.size(); i++) {
+	for (int i = 0; i < videofiles.size(); i++) 
+	{
 		cout << videofiles[i].getAbsolutePath() << endl;
-		videoStreams.push_back(new videostream(videofiles[i].getAbsolutePath()));	// open Videofile 
+		videoSources.push_back(make_shared<vmPlayer>(videofiles[i].getAbsolutePath()));
 	}
 
-	// Setup for Previews
-	padding = 20;
-	float pwidth;
-	if (videoStreams.size() > 4) {
-		pwidth = (ofGetWindowWidth() - padding * (videoStreams.size() + 1)) / videoStreams.size();
-	}
-	else {
-		pwidth = (ofGetWindowWidth() - padding * (5 + 1)) / 5;
-	}
-	cout << "pwidth :" << pwidth << endl;
-	previewSize = ofVec2f(pwidth, pwidth/16.0f*9.0f);
 
-	// add previews with click-listener for each videostream x each outputWindow
-	for (int i = 0; i < videoStreams.size(); i++) {
-		for (int j = 0; j < outputWindows.size(); j++) {
-			videoStreams[i]->addPreview(ofVec2f(padding + i * (previewSize.x + padding),
-												padding*3 + j * (previewSize.y + padding*5)), j, previewSize);
-			ofAddListener(videoStreams[i]->previews[j]->clickedInside, this, &ofApp::onMouseClickedInPreview);
+
+	// Create Previews
+	for (int i = 0; i < outputWindowApps.size(); i++) 
+	{
+		for (int j = 0; j < videoSources.size(); j++)
+		{
+			previews.push_back(make_shared<preview>(outputWindowApps[i], videoSources[j]));
+			//ofAddListener(previews.back()->clickedInside, this, &ofApp::onMouseClickedInPreview);
+		}
+	}
+
+	arrangePreviews();
+
+	outputWindowApps[0]->setTexture(videoSources[0]->getTexture());
+	outputWindowApps[1]->setTexture(videoSources[0]->getTexture());
+	outputWindowApps[2]->setTexture(videoSources[0]->getTexture());
+}
+
+//--------------------------------------------------------------
+
+void ofApp::update(){
+	for (int i = 0; i < videoSources.size(); i++) {
+		videoSources[i]->update();
+	}
+
+	for (int i = 0; i < videoSources.size(); i++) {
+		int stopVideo = true;
+		for (int j = 0; j < outputWindowApps.size(); j++) {
+			if (videoSources[i]->getTexture() == outputWindowApps[j]->outTexture) 
+			{
+				stopVideo = false;
+			}
+		}
+		if (stopVideo)
+		{
+			videoSources[i]->stop();
 		}
 	}
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
-	ofBackground(guiColors::background);
 
-	// Update all VideoStreams
-	for (int i = 0; i < videoStreams.size(); i++) {
-		videoStreams[i]->update();
-	}
-
-}
-
-//--------------------------------------------------------------
 void ofApp::draw(){
-	ofPushStyle();
 	ofBackground(33);
-	ofFill();
-	ofSetColor(99);
-	for (int i = 0; i < outputWindows.size(); i++) {
-		ofRect(0, padding + i * previewSize.y + padding * i * 5,	ofGetWindowWidth(), previewSize.y + padding * 4);
-	}
-	ofNoFill();
-	ofSetColor(255);
-	for (int i = 0; i < outputWindows.size(); i++) {
-		string s = "Display " + to_string(i);
-		ofDrawBitmapString(s, padding, padding + i * previewSize.y + padding * i * 5 + padding);
+
+	// Draw Background for Previews
+	ofPushMatrix();
+	ofPushStyle();
+	for (int i = 0; i < outputWindowApps.size(); i++) {
+		ofTranslate(0, globals::padding);
+
+		ofFill();
+		ofSetColor(99);
+		ofRect(0, 0, ofGetWindowWidth(), previews[0]->size.y + globals::padding*3);
+
+		ofNoFill();
+		ofSetColor(ofColor::black);
+		ofDrawBitmapString("Display: " + to_string(i), globals::padding, globals::padding);
+		
+		ofTranslate(0, previews[0]->size.y + globals::padding*3);
 	}
 	ofPopStyle();
+	ofPopMatrix();
 
-	// Show Preview of all VideoStreams
-	for (int i = 0; i < videoStreams.size(); i++) {
-		videoStreams[i]->drawPreview();
+	// Draw Previews
+	for (int i = 0; i < previews.size(); i++)
+	{
+		previews[i]->draw();
 	}
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
 
-	//if (key == '1')	  	 outputWindow01->outTexture = videoStreams[0]->getTexture();
-	//else if (key == '2') outputWindow01->outTexture = videoStreams[1]->getTexture();
+//void ofApp::onMouseClickedInPreview(int e)
+//{
+//
+//}
 
-}
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
-}
 
 //--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
 
-}
+void ofApp::arrangePreviews() {
+	int outputWindowCount = outputWindowApps.size();
+	int rowCount = previews.size() / outputWindowCount;
 
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
-}
+	float width = (ofGetWindowWidth() - (rowCount + 1) * globals::padding) / rowCount;
+	float height = (float)width / 16.0f * 9.0f;
+	ofVec2f size(width, height);
 
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
-}
-
-void ofApp::onMouseClickedInPreview(ofVec2f& e) {
-	cout << "clicked inside Preview ID: " << e.x << "for output Display " << e.y << endl;
-	videoStreams[(int)e.x]->play();
-	outputWindows[(int)e.y]->outTexture = videoStreams[(int)e.x]->getTexture();
-}
-
-void ofApp::exit() {
-	for (int i = 0; i < videoStreams.size(); i++) {
-		videoStreams[i]->close();
+	for (int i = 0; i < previews.size(); i++) {
+		previews[i]->setSize(size);
+		previews[i]->trimTitle();
+		previews[i]->setPos(ofVec2f(previews[i]->videoSource->id  * (width  + globals::padding) + globals::padding, 
+									previews[i]->outputWindow->id * (height + globals::padding * 4) + globals::padding * 3));
 	}
-
 }
-

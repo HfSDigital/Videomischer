@@ -1,15 +1,21 @@
 #pragma once
+
 #include "ofMain.h"
-#include "guiColors.h"
+#include "vmVideoSource.h"
+#include "outputWindowApp.h"
 
-class preview : public ofBaseApp {
+#include "globals.h"
 
+class preview
+{
 public:
-	preview(int id, ofVec2f pos, ofVec2f size, int outDisplay);
-	ofEvent<ofVec2f> clickedInside;			// this gives us the PreviewID 
-	ofVec2f pos, size;
-	bool isMouseOver = false;
+	preview(shared_ptr<outputWindowApp> outputWindow, shared_ptr<vmVideoSource> videoSource);
+	void setSize(ofVec2f size);
+	void setPos(ofVec2f pos);
+	void draw();
+	void trimTitle();
 
+	int inside(float _x, float _y);
 	void mouseMoved(ofMouseEventArgs & args);
 	void mouseDragged(ofMouseEventArgs & args);
 	void mousePressed(ofMouseEventArgs & args);
@@ -17,9 +23,16 @@ public:
 	void mouseScrolled(ofMouseEventArgs & args);
 	void mouseEntered(ofMouseEventArgs & args);
 	void mouseExited(ofMouseEventArgs & args);
-	bool inside(float _x, float _y);
+	//ofEvent<int> clickedInside;
 
-private:
-	int outDisplay;
-	int id;
+	//--------------------------------------------------------------
+	shared_ptr<outputWindowApp> outputWindow; 
+	shared_ptr<vmVideoSource> videoSource;
+	ofVec2f size;
+	ofVec2f pos;
+	int isMouseOver;
+
+	ofTrueTypeFont std_font;
+	string titleTrimmed;
+
 };

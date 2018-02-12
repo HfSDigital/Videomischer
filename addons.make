@@ -1,4 +1,3 @@
 ofxAvCodec
-ofxGui
-ofxOpenCv
+ofxIpVideoGrabber
 ofxOsc
