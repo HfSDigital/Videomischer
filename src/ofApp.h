@@ -2,8 +2,11 @@
 
 #include "ofMain.h"
 
+
 #include "IPVideoGrabber.h"
 #include "ofxAvVideoPlayer.h"
+#include "ofxGui.h"
+#include "ofxJSON.h"
 
 #include "globals.h"
 
@@ -19,7 +22,23 @@ public:
 	void update();
 
 	void arrangePreviews();
+
+	void windowResized(int w, int h);
+	void keyPressed(int key);
+
+	void addOutputWindow(ofVec2f size, ofVec2f position, int id = -1);
+
+	void exit();
 	//void onMouseClickedInPreview(int e);
+
+
+	void mouseMoved(ofMouseEventArgs & args);
+	void mouseDragged(ofMouseEventArgs & args);
+	void mousePressed(ofMouseEventArgs & args);
+	void mouseReleased(ofMouseEventArgs & args);
+	void mouseScrolled(ofMouseEventArgs & args);
+	void mouseEntered(ofMouseEventArgs & args);
+	void mouseExited(ofMouseEventArgs & args);
 
 	//--------------------------------------------------------------
 
@@ -29,5 +48,13 @@ public:
 	vector<shared_ptr<outputWindowApp>> outputWindowApps;//All the output windows
 
 	vector<shared_ptr<preview>> previews;
+
+	shared_ptr<ofTrueTypeFont> std_font;
+
+	ofVec2f windowSize;
+	ofVec2f windowPosition;
+
+	string saveFile = "settings.json";
+	ofxJSONElement saveFileElement;
 
 };

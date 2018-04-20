@@ -9,7 +9,7 @@ vmCamera::vmCamera(int deviceID)
 	videoGrabber.setDeviceID(deviceID);
 	videoGrabber.setDesiredFrameRate(30);
 	videoGrabber.initGrabber(1280, 720);
-	videoGrabber.videoSettings();
+	//videoGrabber.videoSettings();
 
 	title = "cam#" + to_string(deviceID);
 }

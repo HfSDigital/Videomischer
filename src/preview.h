@@ -9,20 +9,15 @@
 class preview
 {
 public:
-	preview(shared_ptr<outputWindowApp> outputWindow, shared_ptr<vmVideoSource> videoSource);
+	preview(shared_ptr<outputWindowApp> outputWindow, shared_ptr<vmVideoSource> videoSource, shared_ptr<ofTrueTypeFont> std_font);
+	~preview();
 	void setSize(ofVec2f size);
 	void setPos(ofVec2f pos);
 	void draw();
 	void trimTitle();
 
-	int inside(float _x, float _y);
-	void mouseMoved(ofMouseEventArgs & args);
-	void mouseDragged(ofMouseEventArgs & args);
-	void mousePressed(ofMouseEventArgs & args);
-	void mouseReleased(ofMouseEventArgs & args);
-	void mouseScrolled(ofMouseEventArgs & args);
-	void mouseEntered(ofMouseEventArgs & args);
-	void mouseExited(ofMouseEventArgs & args);
+	int inside(float _x, float _y, bool hasClicked = false);
+	
 	//ofEvent<int> clickedInside;
 
 	//--------------------------------------------------------------
@@ -32,7 +27,7 @@ public:
 	ofVec2f pos;
 	int isMouseOver;
 
-	ofTrueTypeFont std_font;
+	shared_ptr<ofTrueTypeFont> std_font;
 	string titleTrimmed;
 
 };

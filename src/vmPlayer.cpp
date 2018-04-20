@@ -4,8 +4,16 @@
 
 vmPlayer::vmPlayer(string filename)
 {
-	soundStream.setup(this, 2, 0, 48000, 512, 4);
-	videoPlayer.setupAudioOut(2, 48000);
+	if (soundStream.setup(this, 2, 0, 48000, 512, 4))
+	{
+		videoPlayer.setupAudioOut(2, 48000);
+	}
+	else
+	{
+		cout << "no sound device detected" << endl;
+	}
+	
+	
 	videoPlayer.setLoop(false);
 	this->filename = filename;
 	title = filename.substr(filename.find_last_of("\\") + 1);

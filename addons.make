@@ -1,3 +1,5 @@
 ofxAvCodec
+ofxGui
 ofxIpVideoGrabber
+ofxJSON
 ofxOsc
