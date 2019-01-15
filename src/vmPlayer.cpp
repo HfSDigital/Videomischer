@@ -13,11 +13,9 @@ vmPlayer::vmPlayer(string filename)
 		cout << "no sound device detected" << endl;
 	}
 	
-	
-	videoPlayer.setLoop(false);
 	this->filename = filename;
 	title = filename.substr(filename.find_last_of("\\") + 1);
-	title = title.substr(0, title.find_last_of("."));
+	//title = title.substr(0, title.find_last_of("."));
 }
 
 //--------------------------------------------------------------
@@ -47,8 +45,7 @@ void vmPlayer::play()
 	{
 		videoPlayer.setPosition(0);
 	}
-	
-	videoPlayer.play();
+	videoPlayer.play(); 
 }
 
 //--------------------------------------------------------------
@@ -62,7 +59,14 @@ void vmPlayer::stop()
 //--------------------------------------------------------------
 
 void vmPlayer::setVolume(float v) {
+	cout << "volume: " << v << endl;
 	videoPlayer.setVolume(v);
+}
+
+//--------------------------------------------------------------
+
+void vmPlayer::setLoop(bool l) {
+	videoPlayer.setLoop(l);
 }
 
 //--------------------------------------------------------------

@@ -1,3 +1,5 @@
+#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")  
+
 #include "ofMain.h"
 #include "ofAppGLFWWindow.h"
 
@@ -7,9 +9,9 @@
 
 int main() {
 	ofGLFWWindowSettings settings;
-	int w = 1280;
+	int w = 1600;
 	settings.width = w;
-	settings.height = w / 2.5;
+	settings.height = w / 8;
 	settings.setPosition(ofVec2f(globals::padding, globals::padding*4));
 	settings.title = "Videomischer";
 
@@ -40,8 +42,8 @@ int main() {
 
 
 
-//--------------------------------------------------------------
-
-void addOutput()
-{
-}
+////--------------------------------------------------------------
+//
+//void addOutput()
+//{
+//}

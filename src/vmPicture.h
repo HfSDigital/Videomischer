@@ -13,6 +13,7 @@ public:
 	void play();
 	void stop();
 	void setVolume(float v);
+	void setLoop(bool l);
 	void audioOut(float * output, int bufferSize, int nChannels);
 
 	//--------------------------------------------------------------

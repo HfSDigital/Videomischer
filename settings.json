@@ -1,0 +1,145 @@
+{
+   "mainWindow" : {
+      "Position" : [ 707, 676 ],
+      "Size" : [ 1392, 860 ]
+   },
+   "outputWindows" : [
+      {
+         "Homography" : [
+            [ 0, 0 ],
+            [ 1, 0 ],
+            [ 1, 1 ],
+            [ 0, 1 ]
+         ],
+         "ID" : 1,
+         "Position" : [ 112, 192 ],
+         "Size" : [ 636, 356 ],
+         "VideosourceID" : 4,
+         "isFullscreen" : false
+      }
+   ],
+   "videoSources" : [
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "schwarz.png"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "TestPatternHD_00000_00000.jpg"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "TestPatternSquare_00000.jpg"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "cam#0"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "cam#1"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "Berlin_small.mp4"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : true,
+         "mute" : false,
+         "title" : "chitchat_intro.mp4"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : 65,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "UP_hd_2mbps.mp4"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "chat"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "chimes.wav"
+      },
+      {
+         "keycodes" : [
+            {
+               "keycode" : -1,
+               "outputWindowID" : 1
+            }
+         ],
+         "loop" : false,
+         "mute" : false,
+         "title" : "Windows Unlock.wav"
+      }
+   ]
+}
+

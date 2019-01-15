@@ -3,7 +3,8 @@
 #include "ofMain.h"
 #include "ofxHomography.h"
 #include "ofxJSON.h"
-//#include "ofApp.h"
+
+class ofApp;
 
 class outputWindowApp : public ofBaseApp {
 
@@ -14,7 +15,8 @@ public:
 	void setup();
 	void update();
 	void draw();
-	void keyPressed(int key);
+	void keyPressed(ofKeyEventArgs& e);
+	void keyReleased(ofKeyEventArgs& e);
 	void exit();
 	void windowResized(int w, int h);
 	void updateHomography();
@@ -32,7 +34,11 @@ public:
 
 	//--------------------------------------------------------------
 
-	ofTexture*  outTexture;
+	ofTexture *outTexture, *outTextureB;
+	float fadeAB, fadeTime;
+	int currentTexture;
+	
+
 	int videosourceID;
 	static vector<int> idCounter;
 	int id;
@@ -42,7 +48,7 @@ public:
 	ofVec2f windowPosition;
 	bool isFullscreen;
 
-	// Everything for the 4-Point-Homographic Mapping
+	// Everything for the 4-Point-Homographic Mapping:
 	ofPoint originalCorners[4];
 	ofPoint distortedCorners[4];
 	ofPoint distortedCornersScreen[4];
@@ -50,8 +56,10 @@ public:
 	ofMatrix4x4 homography;
 	int clickedCorner;
 	int cornerSize;
-	bool mouseInsideOutputWindowApp;
 
+	uint64_t fadeCornerPointsTimer;
+	uint64_t timeout{ 1000 };
 
+	ofApp* _mainApp;
 
 };

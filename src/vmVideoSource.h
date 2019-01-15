@@ -11,16 +11,22 @@ public:
 
 	//--------------------------------------------------------------
 
-	virtual void draw(int x, int y, int w, int h) = 0;
-	virtual void update() = 0;
-	virtual ofTexture* getTexture() = 0;
-	virtual void play() = 0;
-	virtual void stop() = 0;
-	virtual void setVolume(float v) = 0;
+	virtual void draw(int x, int y, int w, int h);
+	virtual void update();
+	virtual ofTexture* getTexture();
+	virtual void play();
+	virtual void stop();
+	virtual void setVolume(float v);
+	virtual void setLoop(bool l);
+	virtual void receiveKeyInput(int key);
 
 	//--------------------------------------------------------------
 
 	string title;
 	static int idCounter;
 	int id;
+	bool playInBackground = false;
+	bool bMute = false;
+	bool bLoop = false;
+
 };

@@ -1,24 +1,54 @@
 #include "preview.h"
 
-
 //--------------------------------------------------------------
 
 preview::preview(shared_ptr<outputWindowApp> outputWindow, shared_ptr<vmVideoSource> videoSource, shared_ptr<ofTrueTypeFont> std_font)
 {
+	//keyboardShortcut = previewID++;
+	keyboardShortcut = -1;
 	this->outputWindow = outputWindow;
 	this->videoSource = videoSource;
 	this->std_font = std_font;
 	size = ofVec2f(160, 90);
 	isMouseOver = false;
+	waitForKey = false;
+
+	//bMute = false;
+	//videoSource->setVolume(bMute ? 0.0f : 1.0f);
+	//bLoop = false;
+	//videoSource->setLoop(bLoop);
+
+	const int btn_size = 9;
+	// add buttons;
+	btns.push_back(btn());
+	btns.back().name = "mute";
+	btns.back().x = btn_size;
+	btns.back().y = btn_size * 1;
+	btns.back().r = btn_size;
+	btns.back().color = ofColor::lightGrey;
+	btns.back().isMouseOver = false;
+
+	btns.push_back(btn());
+	btns.back().name = "loop";
+	btns.back().x = btn_size;
+	btns.back().y = btn_size * 3;
+	btns.back().r = btn_size;
+	btns.back().color = ofColor::lightGrey;
+	btns.back().isMouseOver = false;
+
+	btns.push_back(btn());
+	btns.back().name = "shortcut";
+	btns.back().x = btn_size;
+	btns.back().y = btn_size * 5;
+	btns.back().r = btn_size;
+	btns.back().color = ofColor::lightGrey;
+	btns.back().isMouseOver = false;
 }
 
 
 //--------------------------------------------------------------
 
-preview::~preview()
-{
-	cout << "closing preview " << videoSource->title << " output window: " << outputWindow->id << endl;;
-}
+preview::~preview(){}
 
 //--------------------------------------------------------------
 
@@ -50,22 +80,38 @@ void preview::draw() {
 	// draw title of videoSource
 	ofPushStyle();
 	ofNoFill();
-	ofSetColor(ofColor::white);
-
-	std_font->drawString(titleTrimmed, pos.x, pos.y - globals::padding/2);
-	//ofDrawBitmapString(titleTrimmed, pos.x, pos.y - globals::padding / 2);
-
-	if (isMouseOver)
-	{
-		string s = (isMouseOver > 1) ? "Audio Off" : "Audio On";
-		int w = std_font->stringWidth(s);
-		int h = std_font->stringHeight(s);
-		ofLine(pos.x, pos.y + size.y / 2, pos.x + size.x/2-w/2-h, pos.y + size.y / 2);
-		ofLine(pos.x+size.x/2+w/2+h, pos.y + size.y / 2, pos.x + size.x, pos.y + size.y / 2);
-		std_font->drawString(s, pos.x + size.x/2 - w/2, pos.y + size.y / 2 + h/2);
-		//ofDrawBitmapString(s, pos.x + size.x / 2 - w / 2, pos.y + size.y / 2 + h / 2);
-	}
+	ofSetColor(ofColor::grey);
+	std_font->drawString(titleTrimmed, pos.x, pos.y - 2);
 	ofPopStyle();
+
+	// draw buttons for mute, loop and shortkey
+	ofPushMatrix();
+	ofTranslate(pos.x, pos.y);
+	for (int i = 0; i < btns.size(); i++) {		
+		string s = btns.at(i).name;
+		
+		if (s == "mute") {
+			s = videoSource->bMute ? "muted" : "m";
+		}
+		else if (s == "loop") {
+			s = videoSource->bLoop ? "looping" : "lo";
+		}
+		else if (s == "shortcut") {
+			s = "Ctrl + " + string(1, keyboardShortcut);
+		}
+		
+		float h = btns.at(i).r * 2;
+		float w = std_font->stringWidth(s) + btns.at(i).r;
+		ofFill();
+		ofSetColor(btns.at(i).isMouseOver ? ofColor::white : btns.at(i).color);
+		
+		if (btns.at(i).name == "shortcut" && waitForKey) ofSetColor(ofColor::red);
+
+		ofDrawRectRounded(btns.at(i).x - btns.at(i).r, btns.at(i).y - btns.at(i).r, w, h, btns.at(i).r);
+		ofSetColor(btns.at(i).isMouseOver ? ofColor::black : ofColor::black);
+		std_font->drawString(s, btns.at(i).x - btns.at(i).r/2, btns.at(i).y + btns.at(i).r/2);
+	}
+	ofPopMatrix();
 }
 
 //--------------------------------------------------------------
@@ -82,32 +128,64 @@ void preview::trimTitle()
 
 //--------------------------------------------------------------
 
-int preview::inside(float _x, float _y, bool hasClicked) {
+void preview::inside(float _x, float _y, bool hasClicked) {
 	// this function checks if the passed arguments are inside the preview rectangle.
-	// return 1 if click was in upper half, return 2 if click was in lower half of the region
 
-	if ((_x > pos.x) && (_x < pos.x + size.x) && (_y > pos.y) && (_y < pos.y + size.y / 2))
+	// check buttons
+	bool insideButtons = false;
+	for (int i = 0; i < btns.size(); i++) {
+		if (ofDist(_x, _y, pos.x + btns.at(i).x, pos.y + btns.at(i).y) < btns.at(i).r) {
+			btns.at(i).isMouseOver = true;
+			insideButtons = true;
+			if (hasClicked) {
+				cout << btns.at(i).name << endl;
+				if (btns.at(i).name == "mute") {
+					videoSource->bMute = !videoSource->bMute;
+					videoSource->setVolume(videoSource->bMute ? 0.0f : 1.0f);
+				}
+				else if (btns.at(i).name == "loop") {
+					videoSource->bLoop = !videoSource->bLoop;
+					videoSource->setLoop(videoSource->bLoop);
+				}
+				else if (btns.at(i).name == "shortcut") {
+					waitForKey = true;
+				}
+			}
+		}
+		else {
+			btns.at(i).isMouseOver = false;
+		}
+	}
+
+	if ((_x > pos.x) && (_x < pos.x + size.x) && (_y > pos.y) && (_y < pos.y + size.y))
 	{
 		isMouseOver = 1;
-	}
-	else if ((_x > pos.x) && (_x < pos.x + size.x) && (_y >= pos.y + size.y / 2) && (_y < pos.y + size.y)) 
-	{
-		isMouseOver = 2;
+
+		// if we click and we're not inside of one of the tiny buttons, play the video
+		if (!insideButtons && hasClicked) {
+			showVideo();
+		}
 	}
 	else
 	{
 		isMouseOver = 0;
 	}
 
-	if (isMouseOver && hasClicked) {
-		cout << "clicked inside " << videoSource->title << " " << videoSource->id << " output window: " << outputWindow->id << endl;
-		outputWindow->setTexture(videoSource->getTexture());
-		outputWindow->videosourceID = videoSource->id;
-		videoSource->play();
-		videoSource->setVolume((isMouseOver == 1) ? 1.0f : 0.0f);
-	}
-
-	return isMouseOver;
 }
 
+//--------------------------------------------------------------
+
+void preview::showVideo() {
+
+	cout << "playing " << videoSource->title << " " << videoSource->id 
+		<< " output window: " << outputWindow->id << " keyboardShortcut: " << keyboardShortcut
+		<< " loop: " << videoSource->bLoop << " audio: " << videoSource->bMute << endl;
+	
+	if (!videoSource->playInBackground) {
+		outputWindow->setTexture(videoSource->getTexture());
+		outputWindow->videosourceID = videoSource->id;
+	}
+
+	videoSource->play();
+}
 

@@ -1,4 +1,5 @@
 #include "outputWindowApp.h"
+#include "ofApp.h"
 
 vector<int> outputWindowApp::idCounter;
 
@@ -6,29 +7,17 @@ vector<int> outputWindowApp::idCounter;
 
 outputWindowApp::outputWindowApp()
 {
-	outTexture = nullptr;
-	isFullscreen = false;
-
 	if (idCounter.size() > 0) 
 		id = idCounter.back() + 1;
 	else 
 		id = 0;
-
-	idCounter.push_back(id);
-
-	isRunning = true;
-	cout << "outputWindowApp-ID: " << id << endl;
 }
 
 //--------------------------------------------------------------
 
 outputWindowApp::outputWindowApp(int _id)
 {
-	outTexture = nullptr;
 	id = _id;
-	idCounter.push_back(id);
-	isRunning = true;
-	cout << "outputWindowApp-ID: " << id << endl;
 }
 
 //--------------------------------------------------------------
@@ -36,15 +25,36 @@ outputWindowApp::outputWindowApp(int _id)
 void outputWindowApp::setTexture(ofTexture* _outTexture)
 {
 	outTexture = _outTexture;
+	return;
+	if (currentTexture == 0) {
+		outTexture = _outTexture;
+		currentTexture = 1;
+	}
+	else {
+		outTextureB = _outTexture;
+		currentTexture = 0;
+	}
 }
 
 //--------------------------------------------------------------
 
 void outputWindowApp::setup(){
+	outTexture = nullptr;
+	outTextureB = nullptr;
+	fadeAB = 0.0;
+	currentTexture = 0;
+	fadeTime = 20.0;
+
+	isFullscreen = false;
+	videosourceID = 0;
+
+	idCounter.push_back(id);
+	isRunning = true;
+
 	// Everything we need to setup for the mapping
 	clickedCorner = -1;
 	cornerSize = 15;
-	mouseInsideOutputWindowApp = false;
+	//mouseInsideOutputWindowApp = false;
 
 	originalCorners[0].set(0, 0);
 	originalCorners[1].set(1, 0);
@@ -64,6 +74,8 @@ void outputWindowApp::setup(){
 void outputWindowApp::update(){
 	windowPosition.x = ofGetWindowPositionX();
 	windowPosition.y = ofGetWindowPositionY();
+
+	fadeAB += (float(currentTexture) - fadeAB) * (1.0 / fadeTime);
 }
 
 //--------------------------------------------------------------
@@ -76,16 +88,33 @@ void outputWindowApp::draw()
 	{
 		ofPushMatrix();
 		ofMultMatrix(homography);
+
 		outTexture->draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+		//ofSetColor(255);
+		//if (currentTexture == 0) {
+		//	if(outTextureB) outTextureB->draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+		//	ofSetColor(255, fadeAB * 255);
+		//	outTexture->draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+		//}
+		//else {
+		//	outTexture->draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+		//	ofSetColor(255, (1 - fadeAB) * 255);
+		//	if (outTextureB) outTextureB->draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+		//}
+
 		ofPopMatrix();
 
 		// Draw 4 Points for mapping
-		if (mouseInsideOutputWindowApp) {
+		if (((ofGetElapsedTimeMillis() - fadeCornerPointsTimer) < timeout)) {
 			for (int i = 0; i < 4; i++)
 			{
+				int a = (timeout - (ofGetElapsedTimeMillis() - fadeCornerPointsTimer)) / (timeout/255);
 				ofPushStyle();
+				ofSetColor(0, a);
+				ofCircle(distortedCornersScreen[i], cornerSize*1.5);
 				ofSetColor(ofColor::yellow);
-				ofEllipse(distortedCornersScreen[i], cornerSize, cornerSize);
+				ofSetColor(255, 0, 0, a);
+				ofCircle(distortedCornersScreen[i], cornerSize);
 				ofPopStyle();
 			}
 		}
@@ -94,8 +123,12 @@ void outputWindowApp::draw()
 
 //--------------------------------------------------------------
 
-void outputWindowApp::keyPressed(int key) {
-	if (key == 'f')
+void outputWindowApp::keyPressed(ofKeyEventArgs& e) {
+	//cout << "key " << e.keycode << " pressed in outputWindowApp" << endl;
+	_mainApp->keycodePressed(e);
+	
+
+	if (_mainApp->bCTRLpressed && _mainApp->bSHIFTpressed && e.keycode == 70)
 	{
 		ofToggleFullscreen();
 		isFullscreen = !isFullscreen;
@@ -104,9 +137,14 @@ void outputWindowApp::keyPressed(int key) {
 			ofSetWindowShape(640, 360);
 			ofSetWindowPosition(100, 100);
 		}
-	}
+	} 
 }
 
+void outputWindowApp::keyReleased(ofKeyEventArgs& e) {
+	//cout << "key " << e.keycode << " released in outputWindowApp" << endl;
+	_mainApp->keycodeReleased(e);
+}
+//
 
 //--------------------------------------------------------------
 
@@ -148,7 +186,9 @@ void outputWindowApp::mouseReleased(ofMouseEventArgs & args)
 
 //--------------------------------------------------------------
 
-void outputWindowApp::mouseMoved(ofMouseEventArgs & args) {}
+void outputWindowApp::mouseMoved(ofMouseEventArgs & args) {
+	fadeCornerPointsTimer = ofGetElapsedTimeMillis();
+}
 
 //--------------------------------------------------------------
 
@@ -176,9 +216,12 @@ void outputWindowApp::mouseDragged(ofMouseEventArgs & args)
 			distortedCorners[clickedCorner].set(distortedCorners[clickedCorner].x, 0);
 		}
 
+		fadeCornerPointsTimer = ofGetElapsedTimeMillis();
 		updateHomography();
 	}
 }
+
+//--------------------------------------------------------------
 
 void outputWindowApp::updateHomography()
 {
@@ -196,17 +239,11 @@ void outputWindowApp::mouseScrolled(ofMouseEventArgs & args) {}
 
 //--------------------------------------------------------------
 
-void outputWindowApp::mouseEntered(ofMouseEventArgs & args)
-{
-	mouseInsideOutputWindowApp = true;
-}
+void outputWindowApp::mouseEntered(ofMouseEventArgs & args){}
 
 //--------------------------------------------------------------
 
-void outputWindowApp::mouseExited(ofMouseEventArgs & args) 
-{
-	mouseInsideOutputWindowApp = false;
-}
+void outputWindowApp::mouseExited(ofMouseEventArgs & args) {}
 
 //--------------------------------------------------------------
 
