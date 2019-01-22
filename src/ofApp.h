@@ -65,5 +65,15 @@ public:
 
 	bool bCTRLpressed, bALTpressed, bSHIFTpressed;
 
+	struct _vmSettings {
+		bool autoSwitchEnabled = false;
+		uint64_t autoSwitchInterval = 1000;
+		uint64_t autoSwitchIntervalRandom = 500;
+		bool chatEnabled = false;
+		bool footcontrollerEnabled = true;
+	} vmSettings;
+
+	uint64_t switchInterval = 1000;
+	uint64_t lastSwitchTime;
 
 };

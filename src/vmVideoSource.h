@@ -15,6 +15,7 @@ public:
 	virtual void update();
 	virtual ofTexture* getTexture();
 	virtual void play();
+	virtual void pause();
 	virtual void stop();
 	virtual void setVolume(float v);
 	virtual void setLoop(bool l);

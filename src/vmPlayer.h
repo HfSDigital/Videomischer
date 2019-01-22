@@ -13,6 +13,7 @@ public:
 	void update();
 	void draw(int x, int y, int w, int h);
 	void play();
+	void pause();
 	void stop();
 	void setVolume(float v);
 	void setLoop(bool l);

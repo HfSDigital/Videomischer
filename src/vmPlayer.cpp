@@ -50,6 +50,19 @@ void vmPlayer::play()
 
 //--------------------------------------------------------------
 
+void vmPlayer::pause()
+{
+	if (videoPlayer.getIsPlaying())
+	{
+		videoPlayer.setPaused(true);
+	} else 
+	{
+		videoPlayer.setPaused(false);
+	}
+}
+
+//--------------------------------------------------------------
+
 void vmPlayer::stop()
 {
 	videoPlayer.stop();

@@ -90,6 +90,8 @@ void outputWindowApp::draw()
 		ofMultMatrix(homography);
 
 		outTexture->draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+		// fade-option
+		//------
 		//ofSetColor(255);
 		//if (currentTexture == 0) {
 		//	if(outTextureB) outTextureB->draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
@@ -127,7 +129,7 @@ void outputWindowApp::keyPressed(ofKeyEventArgs& e) {
 	//cout << "key " << e.keycode << " pressed in outputWindowApp" << endl;
 	_mainApp->keycodePressed(e);
 	
-
+	// Toggle Fullscreen
 	if (_mainApp->bCTRLpressed && _mainApp->bSHIFTpressed && e.keycode == 70)
 	{
 		ofToggleFullscreen();

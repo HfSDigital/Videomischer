@@ -62,11 +62,6 @@ void ofApp::setup(){
 	}
 
 
-	// Add a chat to the videoSources
-
-	videoSources.push_back(make_shared<vmChat>());
-
-
 	// Get all audio files and add them to videoSources
 
 	dir.open("audio");
@@ -78,25 +73,37 @@ void ofApp::setup(){
 	}
 
 
-
-	// Load saved Session
+	// Load stored Session
 
 	if (saveFileElement.open(saveFile))
 	{
+		// Restore General Settings
+		vmSettings.autoSwitchEnabled = saveFileElement["generalSettings"]["autoSwitchEnabled"].asBool();
+		vmSettings.autoSwitchInterval = saveFileElement["generalSettings"]["autoSwitchInterval"].asUInt64();
+		vmSettings.autoSwitchIntervalRandom = saveFileElement["generalSettings"]["autoSwitchIntervalRandom"].asUInt64();
+		vmSettings.footcontrollerEnabled = saveFileElement["generalSettings"]["footcontrollerEnabled"].asBool();
+		vmSettings.chatEnabled = saveFileElement["generalSettings"]["chatEnabled"].asBool();
+		
+		// Add a chat to the videoSources
+		if (vmSettings.chatEnabled) {
+			videoSources.push_back(make_shared<vmChat>());
+		}
+
 		// Restore Size and Position of MainWindow
 		windowSize.x = saveFileElement["mainWindow"]["Size"][0].asInt();
 		windowSize.y = saveFileElement["mainWindow"]["Size"][1].asInt();
 		ofSetWindowShape(windowSize.x, windowSize.y);
 		ofSetWindowPosition(saveFileElement["mainWindow"]["Position"][0].asInt(), saveFileElement["mainWindow"]["Position"][1].asInt());
+
 		// Restore OutputWindows
 		for (int i = 0; i < saveFileElement["outputWindows"].size(); i++)
 		{
 			addOutputWindow(
 				ofVec2f(saveFileElement["outputWindows"][i]["Size"][0].asInt(),
-						saveFileElement["outputWindows"][i]["Size"][1].asInt()),
-				ofVec2f(saveFileElement["outputWindows"][i]["Position"][0].asInt(), 
-						saveFileElement["outputWindows"][i]["Position"][1].asInt()),
-						saveFileElement["outputWindows"][i]["ID"].asInt());
+					saveFileElement["outputWindows"][i]["Size"][1].asInt()),
+				ofVec2f(saveFileElement["outputWindows"][i]["Position"][0].asInt(),
+					saveFileElement["outputWindows"][i]["Position"][1].asInt()),
+				saveFileElement["outputWindows"][i]["ID"].asInt());
 			for (int j = 0; j < 4; j++)
 			{
 				outputWindowApps.back()->distortedCorners[j].x = saveFileElement["outputWindows"][i]["Homography"][j][0].asFloat();
@@ -125,10 +132,17 @@ void ofApp::setup(){
 			}
 		}
 	}
+	else {
+		// Add a chat to the videoSources as standard-option
+		if(vmSettings.chatEnabled) videoSources.push_back(make_shared<vmChat>());
+	}
+
 
 	if (outputWindowApps.size() < 1) {
 		addOutputWindow(ofVec2f(1280, 720), ofVec2f(50,250), 0);
 	}
+
+	lastSwitchTime = ofGetElapsedTimeMillis();
 }
 
 //--------------------------------------------------------------
@@ -141,6 +155,23 @@ void ofApp::update(){
 
 	windowPosition.x = ofGetWindowPositionX();
 	windowPosition.y = ofGetWindowPositionY();
+
+	// Switch Video automatically
+	if (vmSettings.autoSwitchEnabled) {
+		uint64_t currentTime = ofGetElapsedTimeMillis();
+		if (currentTime > lastSwitchTime + switchInterval) {
+			cout << "switching.." << endl;
+			int vID = (int)ofRandom(previews.size() / outputWindowApps.size());
+			previews.at(vID)->showVideo();
+			switchInterval = (int)ofRandom(
+								vmSettings.autoSwitchInterval - vmSettings.autoSwitchIntervalRandom / 2, 
+								vmSettings.autoSwitchInterval + vmSettings.autoSwitchIntervalRandom / 2
+							    );
+			cout << "next int	erval: " << vmSettings.autoSwitchInterval << endl;
+			lastSwitchTime = currentTime;
+		}
+	}
+	
 
 	// Update all Videosources
 	for (int i = 0; i < videoSources.size(); i++) {
@@ -305,6 +336,25 @@ void ofApp::showHelp(int x, int y) {
 //--------------------------------------------------------------
 
 void ofApp::keycodePressed(ofKeyEventArgs& e) {
+	if (vmSettings.footcontrollerEnabled) {
+		int nextClipID = 0;
+		if (e.keycode == 49) {
+  		    // play previous clip 
+
+			if (outputWindowApps[0]->videosourceID > 0)
+				nextClipID = outputWindowApps[0]->videosourceID - 1;
+
+			previews.at(nextClipID)->showVideo();
+		}
+		else if (e.keycode == 50) {		
+			// play next clip
+
+			if (outputWindowApps[0]->videosourceID < previews.size())
+				nextClipID = outputWindowApps[0]->videosourceID + 1;
+
+			previews.at(nextClipID)->showVideo();
+		}
+	}
 	if (e.keycode == 340) {			// Shift Key
 		bSHIFTpressed = true;
 	}
@@ -313,6 +363,11 @@ void ofApp::keycodePressed(ofKeyEventArgs& e) {
 	}
 	else if (e.keycode == 342) {	// Alt Key
 		bALTpressed = true;
+	}
+	else if (e.keycode == 32) {	// SPACE Key
+		for (int i = 0; i < outputWindowApps.size(); i++) {
+			previews.at(outputWindowApps[i]->videosourceID)->videoSource->pause();
+		}
 	}
 	else if (e.keycode != 0) {
 		if (bCTRLpressed && !bSHIFTpressed) {
@@ -451,7 +506,21 @@ void ofApp::exit()
 	}	
 	saveFileElement["videoSources"] = videosources;
 
+
+	// General Settings
+	ofxJSONElement generalSettings;
+	generalSettings["chatEnabled"] = vmSettings.chatEnabled;
+	generalSettings["autoSwitchEnabled"] = vmSettings.autoSwitchEnabled;
+	generalSettings["autoSwitchInterval"] = vmSettings.autoSwitchInterval;
+	generalSettings["autoSwitchIntervalRandom"] = vmSettings.autoSwitchIntervalRandom;
+	generalSettings["footcontrollerEnabled"] = vmSettings.footcontrollerEnabled;
+
+	saveFileElement["generalSettings"] = generalSettings;
+
+
+	// save JSON File
 	saveFileElement.save(saveFile, true);
+
 
 	OF_EXIT_APP(0);
 }
